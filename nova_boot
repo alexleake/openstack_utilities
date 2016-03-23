@@ -30,6 +30,27 @@ sess = session.Session(auth=auth, verify='/etc/ssl/certs/ca-certificates.crt')
 
 nova = nova_client.Client(2, session=sess)
 
+# helper function:
+def prompt_user(lst):
+    """
+        Given a list LST of n items, will print the items and prompt for input until the user has made a selection.
+        Returns a number between -1 (user does not want to proceed, and len(lst).
+    """
+    lst_len = len(lst)
+    while  True:
+        for i in range(lst_len):
+            print i, lst[i]
+        print "-1, exit"
+        try:
+            choice = int(input('Your choice? '))
+        except:
+            print "invalid choice"
+            continue
+        if choice not in range(-1, lst_len):
+            print "Need an integer between -1 and %s" %(lst_len-1)
+        else:
+            return choice
+
 # gather vm details
 
 # function to check the SSH key to use
