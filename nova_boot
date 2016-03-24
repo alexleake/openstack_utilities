@@ -30,17 +30,13 @@ sess = session.Session(auth=auth, verify='/etc/ssl/certs/ca-certificates.crt')
 
 nova = nova_client.Client(2, session=sess)
 
-# helper function:
+# list function:
 def prompt_user(lst):
-    """
-        Given a list LST of n items, will print the items and prompt for input until the user has made a selection.
-        Returns a number between -1 (user does not want to proceed, and len(lst).
-    """
     lst_len = len(lst)
     while  True:
         for i in range(lst_len):
             print i, lst[i]
-        print "-1, exit"
+        print "-1 to exit..."
         try:
             choice = int(input('Your choice? '))
         except:
@@ -53,19 +49,6 @@ def prompt_user(lst):
 
 # gather vm details
 
-# function to check the SSH key to use
-
-def get_key():
-    selection_ok = ''
-    while selection_ok is not 'y' and selection_ok is not 'Y':
-        print "Here are your available SSH keys:"
-        keypair_list = nova.keypairs.list()
-        for key in keypair_list:
-            print key.name
-        get_key.name = raw_input('Which key should we use? ')
-        print "Using key name {name}.".format(name=get_key.name)
-        selection_ok = raw_input('is that OK? answer y/Y to continue ')
-
 # function to get the VM name
 
 def get_name():
@@ -75,37 +58,32 @@ def get_name():
         print "name is {name}".format(name=get_name.name)
         selection_ok = raw_input('is that OK? answer y/Y to continue ')
 
+# function to check the SSH key to use
+
+def get_key():
+    print "Here are your available SSH keys:"
+    keypair_list = nova.keypairs.list()
+    index = int(prompt_user(keypair_list))
+    get_key.name = keypair_list[index].name
+
 # function to select the VM image
 
 def get_image():
-    selection_ok = ''
-    while selection_ok is not 'y' and selection_ok is not 'Y':
-       image_list = nova.images.list()
-       print "Copy the id from one of the images below...\n"
-       print '{:<40} {:<12}'.format("Name", "ID")
-       for image in image_list:
-           print '{:<40} {:<12}'.format(image.name, image.id)
-       get_image.id = raw_input('Please copy and paste the ID: ') 
-       for image in image_list:
-           if image.id == get_image.id:
-               print "We will use {id}".format(id=image.name)
-               selection_ok = raw_input('is that OK? answer y/Y to continue ')
+    print "Here are your available images:"
+    image_list = nova.images.list()
+    index = int(prompt_user(image_list))
+    get_image.id = image_list[index].id
 
 # function to select the flavor
 
 def get_flavor():
-    selection_ok = ''
-    while selection_ok is not 'y' and selection_ok is not 'Y':
-        flavor_list = nova.flavors.list()
-        print '{:<4} {:<10} {:<8} {:<8} {:<8}'.format("ID", "Name", "VCPUs", "RAM", "DISK")
-        for flavor in flavor_list:
-            print '{:<4} {:<10} {:<8} {:<8} {:<8}'.format(flavor.id, flavor.name, flavor.vcpus, flavor.ram, flavor.disk)
-        get_flavor.id = raw_input('Please specify the ID: ')
-        print "Using {id}".format(id=get_flavor.id)
-        selection_ok = raw_input('is that OK? answer y/Y to continue ')
+    print "Here are your available flavors:"
+    flavor_list = nova.flavors.list()
+    index = int(prompt_user(flavor_list))
+    get_flavor.id = flavor_list[index].id
 
-get_key()
 get_name()
+get_key()
 get_image()
 get_flavor()
 
