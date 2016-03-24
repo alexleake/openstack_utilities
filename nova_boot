@@ -61,10 +61,16 @@ def get_name():
 # function to check the SSH key to use
 
 def get_key():
-    print "Here are your available SSH keys:"
     keypair_list = nova.keypairs.list()
-    index = int(prompt_user(keypair_list))
-    get_key.name = keypair_list[index].name
+    if len(keypair_list) is 0:
+        print "You do not have any keypairs associated with this account, proceeding..."
+    elif len(keypair_list) is 1:
+        print "You only have one keypair, proceeding..."
+        get_key.name = keypair_list[0].name
+    else:
+        print "Here are your available SSH keys:"
+        index = int(prompt_user(keypair_list))
+        get_key.name = keypair_list[index].name
 
 # function to select the VM image
 
@@ -82,12 +88,19 @@ def get_flavor():
     index = int(prompt_user(flavor_list))
     get_flavor.id = flavor_list[index].id
 
+# call all our functions
+
 get_name()
 get_key()
 get_image()
 get_flavor()
 
+# if they do not have an SSH key let's just carry on without it...
+
 try:
-    nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id, key_name=get_key.name)
+    if 'get_key.name' in globals():
+        nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id, key_name=get_key.name)
+    else:
+        nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id)
 except nova_client.exceptions.Forbidden:
     print "Nova denied your request, please check you have sufficient quota and your details are correct..."
