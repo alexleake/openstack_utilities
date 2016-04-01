@@ -8,13 +8,13 @@ import os
 import sys
 import time
 
-example_credentials="auth_url=''\nusername=''\npassword=''\nproject_id=''\nuser_domain_id=''"
+example_credentials="auth_url=''\nusername=''\npassword=''\nproject_id=''\nuser_domain_id=''\nssl_bundle=''"
 
 # import user details from credentials.py - if none exist, raise exit & print help
 
 try:
     if os.path.isfile('./credentials.py'):
-        from credentials import auth_url, username, password, project_id, user_domain_id
+        from credentials import auth_url, username, password, project_id, user_domain_id, ssl_bundle
     else:
         print "credentials.py file missing, please create one. ie:\n{cred}".format(cred=example_credentials)
         raise SystemExit
@@ -26,7 +26,7 @@ except ImportError:
 # session
 
 auth = v3.Password(auth_url=auth_url, username=username, password=password, project_id=project_id, user_domain_id=user_domain_id)
-sess = session.Session(auth=auth, verify='/etc/ssl/certs/ca-certificates.crt')
+sess = session.Session(auth=auth, verify=ssl_bundle)
 
 # nova connection
 
@@ -56,10 +56,10 @@ def prompt_user(lst):
 
 def get_name():
     selection_ok = ''
-    while selection_ok is not 'y' and selection_ok is not 'Y':
+    while selection_ok not in [ 'y', 'yes']:
         get_name.name = raw_input('What should we call this VM? ')
         print "Server name is {name}".format(name=get_name.name)
-        selection_ok = raw_input('Is that OK? answer y/Y to continue ')
+        selection_ok = raw_input('Is that OK? Answer y/Y to continue. ').lower()
 
 # function to check the SSH key to use
 
@@ -100,8 +100,8 @@ def get_floating_ip():
         get_floating_ip.ob = nova.floating_ips.create()
         print "No IP address found, one has been acquired."
     elif len(free_ips) == 1:
+        print "One IP address available, this will be used."
         get_floating_ip.ob = free_ips[0]
-        print "one IP available: {floating_address}".format(**vars())
     else:
         print "More than one IP available, choosing first available."
         get_floating_ip.ob = free_ips[0]
@@ -142,7 +142,7 @@ else:
 
 # ask user if they would like a floating IP address
 
-associate_floating_ip = raw_input('Would you like to associate a floating IP with this host? ').lower()
+associate_floating_ip = raw_input('Would you like to associate a floating IP with this host? Answer y/Y to continue. ').lower()
 
 # if they answer yes let's call our floating ip function
 
