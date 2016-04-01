@@ -5,6 +5,8 @@ from keystoneclient import session
 from novaclient import client as nova_client
 
 import os
+import sys
+import time
 
 example_credentials="auth_url=''\nusername=''\npassword=''\nproject_id=''\nuser_domain_id=''"
 
@@ -17,7 +19,7 @@ try:
         print "credentials.py file missing, please create one. ie:\n{cred}".format(cred=example_credentials)
         raise SystemExit
 except ImportError:
-    print "unable to read all variables, ensure file is correct, i.e.:"
+    print "Unable to read all variables, ensure file is correct, i.e.:"
     print example_credentials
     raise SystemExit
 
@@ -31,6 +33,7 @@ sess = session.Session(auth=auth, verify='/etc/ssl/certs/ca-certificates.crt')
 nova = nova_client.Client(2, session=sess)
 
 # list function:
+
 def prompt_user(lst):
     lst_len = len(lst)
     while  True:
@@ -40,7 +43,7 @@ def prompt_user(lst):
         try:
             choice = int(input('Your choice? '))
         except:
-            print "invalid choice"
+            print "Invalid choice."
             continue
         if choice not in range(-1, lst_len):
             print "Need an integer between -1 and %s" %(lst_len-1)
@@ -55,8 +58,8 @@ def get_name():
     selection_ok = ''
     while selection_ok is not 'y' and selection_ok is not 'Y':
         get_name.name = raw_input('What should we call this VM? ')
-        print "name is {name}".format(name=get_name.name)
-        selection_ok = raw_input('is that OK? answer y/Y to continue ')
+        print "Server name is {name}".format(name=get_name.name)
+        selection_ok = raw_input('Is that OK? answer y/Y to continue ')
 
 # function to check the SSH key to use
 
@@ -88,6 +91,16 @@ def get_flavor():
     index = int(prompt_user(flavor_list))
     get_flavor.id = flavor_list[index].id
 
+# function to find a list of free ips
+
+def get_floating_ip():
+    nova_ips = nova.floating_ips.list()
+    free_ips = [ip for ip in nova_ips if ip.instance_id is None]
+    if len(free_ips) == 0:
+        print "There are no available IP addresses, one will be acquired."
+    else:
+        print "foo"
+
 # call all our functions
 
 get_name()
@@ -99,8 +112,25 @@ get_flavor()
 
 try:
     if 'get_key.name' in globals():
-        nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id, key_name=get_key.name)
+        create_server = nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id, key_name=get_key.name)
     else:
-        nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id)
+        create_server = nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id)
 except nova_client.exceptions.Forbidden:
     print "Nova denied your request, please check you have sufficient quota and your details are correct..."
+
+server_id = create_server.id
+server_info = nova.servers.get(server_id)
+server_status = server_info.status
+
+print "Waiting for build to complete."
+
+while server_status == 'BUILD':
+    time.sleep(2)
+    server_info = nova.servers.get(server_id)
+    server_status = server_info.status
+
+if server_status == 'ACTIVE':
+    print "The server has finished building."
+else:
+    print "Something went wrong, server status is not ACTIVE!"
+    raise SystemExit
