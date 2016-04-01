@@ -10,7 +10,6 @@ Testing against Keystone v3 / Kilo.
 ```
 auth_url=''
 username=''
-password=''
 project_id=''
 user_domain_id=''
 ssl_bundle=''
