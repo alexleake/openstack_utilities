@@ -6,7 +6,7 @@ Small repo with a couple of tools / examples to help with OpenStack.
 Testing against Keystone v3 / Kilo.
 
 **credentials**
-* create a file in the directory in the format:
+* create a file in the directory called "credentials.py" in the format:
 ```
 auth_url=''
 username=''
