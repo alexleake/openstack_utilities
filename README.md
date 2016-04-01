@@ -8,12 +8,12 @@ Testing against Keystone v3 / Kilo.
 **credentials**
 * create a file in the directory in the format:
 
-: auth_url=''
-: username=''
-: password=''
-: project_id=''
-: user_domain_id=''
-: ssl_bundle=''
+auth_url=''
+username=''
+password=''
+project_id=''
+user_domain_id=''
+ssl_bundle=''
 
 **nova_boot**
 * creates a machine using the Nova client, requires Keystone v3 API / Nova v2 API
