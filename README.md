@@ -7,6 +7,7 @@ Testing against Keystone v3 / Kilo.
 
 **credentials**
 * create a file in the directory in the format:
+
     auth_url=''
     username=''
     password=''
