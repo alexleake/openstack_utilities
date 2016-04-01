@@ -97,11 +97,16 @@ def get_floating_ip():
     nova_ips = nova.floating_ips.list()
     free_ips = [ip for ip in nova_ips if ip.instance_id is None]
     if len(free_ips) == 0:
-        print "There are no available IP addresses, one will be acquired."
+        get_floating_ip.ob = nova.floating_ips.create()
+        print "No IP address found, one has been acquired."
+    elif len(free_ips) == 1:
+        get_floating_ip.ob = free_ips[0]
+        print "one IP available: {floating_address}".format(**vars())
     else:
-        print "foo"
+        print "More than one IP available, choosing first available."
+        get_floating_ip.ob = free_ips[0]
 
-# call all our functions
+# call all our build functions
 
 get_name()
 get_key()
@@ -134,3 +139,13 @@ if server_status == 'ACTIVE':
 else:
     print "Something went wrong, server status is not ACTIVE!"
     raise SystemExit
+
+# ask user if they would like a floating IP address
+
+associate_floating_ip = raw_input('Would you like to associate a floating IP with this host? ').lower()
+
+# if they answer yes let's call our floating ip function
+
+if associate_floating_ip in [ 'y', 'yes' ]:
+    get_floating_ip()
+    server_info.add_floating_ip(get_floating_ip.ob)
