@@ -4,6 +4,7 @@ from keystoneclient.auth.identity import v3
 from keystoneclient import session
 from novaclient import client as nova_client
 
+import getpass
 import os
 import sys
 import time
@@ -14,7 +15,7 @@ example_credentials="auth_url=''\nusername=''\npassword=''\nproject_id=''\nuser_
 
 try:
     if os.path.isfile('./credentials.py'):
-        from credentials import auth_url, username, password, project_id, user_domain_id, ssl_bundle
+        from credentials import auth_url, username, project_id, user_domain_id, ssl_bundle
     else:
         print "credentials.py file missing, please create one. ie:\n{cred}".format(cred=example_credentials)
         raise SystemExit
@@ -22,6 +23,10 @@ except ImportError:
     print "Unable to read all variables, ensure file is correct, i.e.:"
     print example_credentials
     raise SystemExit
+
+# get password variable
+
+password = getpass.getpass()
 
 # session
 
@@ -160,6 +165,7 @@ build_name = get_name.name
 build_image = get_image.name
 
 print "Summary:"
+print "----------------------------"
 print '{:<15} {:<15}'.format("Name:", build_name)
 print '{:<15} {:<15}'.format("IP:", build_ip)
 print '{:<15} {:<15}'.format("Image:", build_image)
