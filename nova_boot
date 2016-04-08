@@ -122,7 +122,7 @@ get_flavor()
 # if they do not have an SSH key let's just carry on without it...
 
 try:
-    if 'get_key.name' in globals():
+    if 'name' in get_key.__dict__:
         create_server = nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id, key_name=get_key.name)
     else:
         create_server = nova.servers.create(name=get_name.name, image=get_image.id, flavor=get_flavor.id)
