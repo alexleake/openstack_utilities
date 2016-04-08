@@ -9,7 +9,12 @@ import os
 import sys
 import time
 
-example_credentials="auth_url=''\nusername=''\npassword=''\nproject_id=''\nuser_domain_id=''\nssl_bundle=''"
+example_credentials = ("auth_url=''\n"
+                       "username=''\n"
+                       "project_id=''\n"
+                       "user_domain_id=''\n"
+                       "ssl_bundle=''\n"
+                      )
 
 # import user details from credentials.py - if none exist, raise exit & print help
 
